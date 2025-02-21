@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const { registerSchema } = require("../utils/validators");
+const { registerSchema, loginSchema } = require("../utils/validators");
 
 const users = [];
 
@@ -19,5 +19,12 @@ exports.register = [
     res
       .status(201)
       .json({ message: "User registered successfully!", user: users });
+  },
+];
+
+exports.login = [
+  loginSchema,
+  async (req, res) => {
+    return res.status(200).json({ message: "Logged user!" });
   },
 ];

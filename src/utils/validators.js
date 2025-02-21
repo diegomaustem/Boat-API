@@ -20,4 +20,19 @@ const registerSchema = [
     .withMessage("At least 6 characters are required for the password."),
 ];
 
-module.exports = { registerSchema };
+const loginSchema = [
+  body("email")
+    .notEmpty()
+    .withMessage("The field email cannot be empty.")
+    .isLength({ min: 6 })
+    .withMessage("At least 6 characters are required for the email.")
+    .isEmail()
+    .withMessage("Invalid email."),
+  body("password")
+    .notEmpty()
+    .withMessage("The field password cannot be empty.")
+    .isLength({ min: 6 })
+    .withMessage("At least 6 characters are required for the password."),
+];
+
+module.exports = { registerSchema, loginSchema };

@@ -25,7 +25,24 @@ exports.register = [
 
 exports.login = [
   loginSchema,
+
   async (req, res) => {
-    return res.status(200).json({ message: "Logged user!" });
+    const errorsValidation = validationResult(req);
+
+    if (!errorsValidation.isEmpty()) {
+      return res
+        .status(400)
+        .json({ message: errorsValidation.array()[0].message });
+    }
+
+    try {
+      const { user, token } = await authService.loginUser(
+        req.body.email,
+        req.body.password
+      );
+      res.status(200).json({ user, token });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
   },
 ];

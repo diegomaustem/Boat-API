@@ -15,3 +15,17 @@ exports.registerUser = async (userData) => {
   });
   return user;
 };
+
+exports.loginUser = async (email, password) => {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new Error("User not found");
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error("Incorrect password");
+
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "3h",
+  });
+
+  return { user, token };
+};

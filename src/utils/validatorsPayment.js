@@ -1,6 +1,6 @@
 const { body } = require("express-validator");
 
-const paymentUserSchema = [
+const paymentSchema = [
   body("name")
     .notEmpty()
     .withMessage("The field name cannot be empty.")
@@ -38,4 +38,4 @@ const paymentUserSchema = [
     .withMessage("Just numbers for value."),
 ];
 
-module.exports = paymentUserSchema;
+module.exports = paymentSchema;

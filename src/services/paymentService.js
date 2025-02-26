@@ -13,12 +13,11 @@ exports.payment = async (id) => {
   }
 };
 
-exports.getAllPayments = async () => {
+exports.payments = async () => {
   try {
     const payments = await prisma.payment.findMany();
     return payments;
   } catch (error) {
-  } finally {
-    await prisma.$disconnect();
+    throw error;
   }
 };

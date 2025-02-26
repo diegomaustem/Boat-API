@@ -25,10 +25,10 @@ exports.payment = [
   },
 ];
 
-exports.getAllPayments = [
+exports.payments = [
   async (req, res) => {
     try {
-      const payments = await paymentService.getAllPayments();
+      const payments = await paymentService.payments();
       res.status(200).json(payments);
     } catch (error) {
       res.status(400).json({ message: error.message });

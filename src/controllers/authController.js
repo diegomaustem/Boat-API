@@ -4,6 +4,7 @@ const authService = require("../services/authService");
 
 exports.register = [
   registerSchema,
+  // VALIDATION TA DANDO RUIM
 
   async (req, res) => {
     const errorsValidation = validationResult(req);

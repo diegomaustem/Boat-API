@@ -2,6 +2,29 @@ const { validationResult } = require("express-validator");
 const paymentSchema = require("../utils/validatorsPayment");
 const paymentService = require("../services/paymentService");
 
+exports.payment = [
+  async (req, res) => {
+    try {
+      const paymentId = req.params.id;
+
+      if (isNaN(paymentId)) {
+        return res.status(400).json("Invalid payment ID.");
+      }
+
+      const payment = await paymentService.payment(paymentId);
+
+      if (!payment) {
+        return res.status(404).json({ message: "Payment not found." });
+      }
+      return res.json(payment);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Ops, query payment error. Try later." });
+    }
+  },
+];
+
 exports.getAllPayments = [
   async (req, res) => {
     try {

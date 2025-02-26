@@ -70,10 +70,51 @@ exports.userUpdate = [
   },
 ];
 
+exports.userDelete = [
+  async (req, res) => {
+    const userId = parseInt(req.params.id);
+
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
+
+    try {
+      const userExist = await verifyUserExist(userId);
+      if (!userExist) {
+        return res.status(404).json({ message: "User not found for deleted." });
+      }
+    } catch (error) {
+      console.error("Error verifying user existence:", error);
+      return res
+        .status(500)
+        .json({ message: "Error verifying user existence." });
+    }
+
+    try {
+      const userDeleted = await userService.userDelete(userId);
+      res
+        .status(200)
+        .json({ message: "User deleted successfully.", userDeleted });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Error deleting user." });
+    }
+  },
+];
+
 async function verifyUserExist(userId) {
   try {
     const userExist = await userService.user(userId);
     return !!userExist;
+  } catch (error) {
+    console.error("Error in verifyUserExist:", error);
+    throw error;
+  }
+}
+
+async function verifyUserHasDebt(userId) {
+  try {
+    // const debtOfUser = await userService.user(userId);
   } catch (error) {
     console.error("Error in verifyUserExist:", error);
     throw error;

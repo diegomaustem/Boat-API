@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const userSchema = require("../utils/validatorsUser");
 const userService = require("../services/userService");
+const debtService = require("../services/debtService");
 const { verify } = require("jsonwebtoken");
 
 exports.users = [
@@ -79,25 +80,29 @@ exports.userDelete = [
     }
 
     try {
+      // Verifica se o usuário existe
       const userExist = await verifyUserExist(userId);
       if (!userExist) {
         return res.status(404).json({ message: "User not found for deleted." });
       }
-    } catch (error) {
-      console.error("Error verifying user existence:", error);
-      return res
-        .status(500)
-        .json({ message: "Error verifying user existence." });
-    }
 
-    try {
+      // Verifica se o usuário tem dívidas
+      const userHasDebt = await verifyUserHasDebt(userId);
+      if (userHasDebt) {
+        return res
+          .status(403)
+          .json({ message: "The user has debts and cannot be deleted." });
+      }
+
+      // Exclui o usuário
       const userDeleted = await userService.userDelete(userId);
       res
         .status(200)
         .json({ message: "User deleted successfully.", userDeleted });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      res.status(500).json({ message: "Error deleting user." });
+      return res
+        .status(500)
+        .json({ message: "Error verifying user existence." });
     }
   },
 ];
@@ -114,9 +119,9 @@ async function verifyUserExist(userId) {
 
 async function verifyUserHasDebt(userId) {
   try {
-    // const debtOfUser = await userService.user(userId);
+    const debtOfUser = await debtService.getDebtForUser(userId);
+    return debtOfUser.length > 0;
   } catch (error) {
-    console.error("Error in verifyUserExist:", error);
     throw error;
   }
 }

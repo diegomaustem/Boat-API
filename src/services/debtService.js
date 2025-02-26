@@ -21,3 +21,14 @@ exports.createDebt = async (debtData) => {
   });
   return debt;
 };
+
+exports.getDebtForUser = async (userId) => {
+  try {
+    const userDebt = await prisma.debt.findMany({
+      where: { userId },
+    });
+    return userDebt;
+  } catch (error) {
+    throw error;
+  }
+};

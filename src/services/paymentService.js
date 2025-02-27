@@ -21,3 +21,18 @@ exports.payments = async () => {
     throw error;
   }
 };
+
+exports.registerPayment = async (paymentData) => {
+  try {
+    const payment = await prisma.payment.create({
+      data: {
+        userId: paymentData.userId,
+        price: paymentData.price,
+        status: paymentData.status,
+      },
+    });
+    return payment;
+  } catch (error) {
+    throw error;
+  }
+};

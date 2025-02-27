@@ -36,7 +36,7 @@ exports.payments = [
   },
 ];
 
-exports.makePayment = [
+exports.registerPayment = [
   paymentSchema,
 
   async (req, res) => {
@@ -49,7 +49,7 @@ exports.makePayment = [
     }
 
     try {
-      const payment = await paymentService.makePayment(req.body);
+      const payment = await paymentService.registerPayment(req.body);
       res
         .status(201)
         .json({ message: "Payment entered successfully.", payment });

@@ -14,6 +14,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Payment" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "debtId" INTEGER NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'paid',
 
@@ -39,6 +40,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_debtId_fkey" FOREIGN KEY ("debtId") REFERENCES "Debt"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Debt" ADD CONSTRAINT "Debt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

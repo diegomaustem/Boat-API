@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const debtSchema = require("../utils/validatorsDebt");
 const debtService = require("../services/debtService");
+const userService = require("../services/userService");
 
 exports.debts = [
   async (req, res) => {
@@ -34,30 +35,43 @@ exports.debt = [
   },
 ];
 
-// exports.allDebts = [
-//   async (req, res) => {
-//     res.status(200).json("all-Bebts");
-//   },
-// ];
+exports.registerDebt = [
+  debtSchema,
+  async (req, res) => {
+    const errorsValidation = validationResult(req);
+    const userId = req.body.userId;
 
-// exports.createDebt = [
-//   debtSchema,
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+    }
 
-//   async (req, res) => {
-//     const errorsValidation = validationResult(req);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
 
-//     if (!errorsValidation.isEmpty()) {
-//       return res.status(400).json({ message: errorsValidation.array()[0].msg });
-//     }
+    const verifyUserExist = await verifyUserExistWithId(userId);
 
-//     // VERIFICAR SE EXISTE ALGUM USUÁRIO COM O ID INFORMADO ::: STAND BY
-//     const verifyUserExistWithId = verifyUserExistWithId(req.body.userId);
+    if (verifyUserExist) {
+      try {
+        const debt = await debtService.registerDebt(req.body);
+        res.status(201).json({ message: "Debt created successfully.", debt });
+      } catch (error) {
+        res.status(400).json({ message: error.message });
+      }
+    } else {
+      return res
+        .status(400)
+        .json({ message: "No users registered with this ID." });
+    }
+  },
+];
 
-//     try {
-//       const debt = await authService.createDebt(req.body);
-//       res.status(201).json({ message: "Debt created successfully.", debt });
-//     } catch (error) {
-//       res.status(400).json({ message: error.message });
-//     }
-//   },
-// ];
+async function verifyUserExistWithId(userId) {
+  try {
+    const userExist = await userService.user(userId);
+    return !!userExist;
+  } catch (error) {
+    console.error("Error in verifyUserExist:", error);
+    throw error;
+  }
+}

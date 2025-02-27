@@ -9,8 +9,6 @@ exports.users = async () => {
     return users;
   } catch (error) {
     throw error;
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
@@ -22,8 +20,6 @@ exports.user = async (userId) => {
     return user;
   } catch (error) {
     throw error;
-  } finally {
-    await prisma.$disconnect();
   }
 };
 
@@ -33,21 +29,28 @@ exports.userUpdate = async (userId, userData) => {
   if (userData.password) {
     hashedPassword = await bcrypt.hash(userData.password, 10);
   }
-
-  const userUpdated = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name: userData.name,
-      email: userData.email,
-      password: hashedPassword,
-    },
-  });
-  return userUpdated;
+  try {
+    const userUpdated = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: userData.name,
+        email: userData.email,
+        password: hashedPassword,
+      },
+    });
+    return userUpdated;
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.userDelete = async (userId) => {
-  const userDeleted = await prisma.user.delete({
-    where: { id: userId },
-  });
-  return userDeleted;
+  try {
+    const userDeleted = await prisma.user.delete({
+      where: { id: userId },
+    });
+    return userDeleted;
+  } catch (error) {
+    throw error;
+  }
 };

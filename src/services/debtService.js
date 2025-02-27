@@ -39,6 +39,20 @@ exports.registerDebt = async (debtData) => {
   }
 };
 
+exports.debtUpdate = async (debtId, debtData) => {
+  const debtUpdated = await prisma.debt.update({
+    where: { id: debtId },
+    data: {
+      userId: debtData.userId,
+      title: debtData.title,
+      value: debtData.value,
+      description: debtData.description,
+      status: debtData.status,
+    },
+  });
+  return debtUpdated;
+};
+
 exports.getDebtForUser = async (userId) => {
   try {
     const userDebt = await prisma.debt.findMany({

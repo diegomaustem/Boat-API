@@ -66,12 +66,75 @@ exports.registerDebt = [
   },
 ];
 
+exports.debtUpdate = [
+  debtSchema,
+  async (req, res) => {
+    const debtId = parseInt(req.params.id);
+    const debtData = req.body;
+    const userIdDebt = req.body.userId;
+
+    if (isNaN(debtId)) {
+      return res.status(400).json({ message: "Invalid debt ID." });
+    }
+
+    try {
+      const debtExist = await verifyDebtExist(debtId);
+      if (!debtExist) {
+        return res.status(404).json({ message: "Debt not found for update." });
+      }
+
+      const userIdExistDebt = await getDebtForUser(userIdDebt);
+      if (!userIdExistDebt) {
+        return res
+          .status(404)
+          .json({ message: "User id not found for update debt." });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Error verifying debt existence." });
+    }
+
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+    }
+
+    try {
+      const debtUpdated = await debtService.debtUpdate(debtId, debtData);
+      res
+        .status(200)
+        .json({ message: "Debt updated successfully.", debtUpdated });
+    } catch (error) {
+      res.status(500).json({ message: "Error updating debt." });
+    }
+  },
+];
+
 async function verifyUserExistWithId(userId) {
   try {
     const userExist = await userService.user(userId);
     return !!userExist;
   } catch (error) {
     console.error("Error in verifyUserExist:", error);
+    throw error;
+  }
+}
+
+async function verifyDebtExist(debtId) {
+  try {
+    const debtExist = await debtService.debt(debtId);
+    return !!debtExist;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getDebtForUser(userIdDebt) {
+  try {
+    const debtOfUserId = await debtService.getDebtForUser(userIdDebt);
+    return debtOfUserId.length > 0;
+  } catch (error) {
     throw error;
   }
 }

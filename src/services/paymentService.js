@@ -54,3 +54,14 @@ exports.paymentUpdate = async (paymentId, paymentData) => {
     throw error;
   }
 };
+
+exports.paymentDelete = async (paymentId) => {
+  try {
+    const paymentDeleted = await prisma.payment.delete({
+      where: { id: paymentId },
+    });
+    return paymentDeleted;
+  } catch (error) {
+    throw error;
+  }
+};

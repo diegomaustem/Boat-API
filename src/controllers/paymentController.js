@@ -122,6 +122,34 @@ exports.paymentUpdate = [
   },
 ];
 
+exports.paymentDelete = [
+  async (req, res) => {
+    const paymentId = parseInt(req.params.id);
+
+    if (isNaN(paymentId)) {
+      return res.status(400).json({ message: "Invalid payment ID." });
+    }
+
+    try {
+      const paymentExist = await verifyPaymentExistWithId(paymentId);
+      if (!paymentExist) {
+        return res
+          .status(404)
+          .json({ message: "Payment not found for deleted." });
+      }
+
+      const paymentDeleted = await paymentService.paymentDelete(paymentId);
+      res
+        .status(200)
+        .json({ message: "Payment deleted successfully.", paymentDeleted });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Error verifying payment existence." });
+    }
+  },
+];
+
 async function verifyPaymentExistWithId(paymentId) {
   try {
     const paymentExist = await paymentService.payment(paymentId);

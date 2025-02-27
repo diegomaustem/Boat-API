@@ -1,18 +1,14 @@
 const { validationResult } = require("express-validator");
-const { registerSchema, loginSchema } = require("../utils/validators");
+const { registerSchema, loginSchema } = require("../utils/validatorsAuth");
 const authService = require("../services/authService");
 
 exports.register = [
   registerSchema,
-  // VALIDATION TA DANDO RUIM
-
   async (req, res) => {
     const errorsValidation = validationResult(req);
 
     if (!errorsValidation.isEmpty()) {
-      return res
-        .status(400)
-        .json({ message: errorsValidation.array()[0].message });
+      return res.status(400).json({ message: errorsValidation.array()[0].msg });
     }
 
     try {
@@ -31,9 +27,7 @@ exports.login = [
     const errorsValidation = validationResult(req);
 
     if (!errorsValidation.isEmpty()) {
-      return res
-        .status(400)
-        .json({ message: errorsValidation.array()[0].message });
+      return res.status(400).json({ message: errorsValidation.array()[0].msg });
     }
 
     try {

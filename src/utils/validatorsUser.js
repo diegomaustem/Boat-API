@@ -2,12 +2,12 @@ const { body } = require("express-validator");
 
 const userSchema = [
   body("name")
+    .notEmpty()
+    .withMessage("The field name cannot be empty.")
     .isString()
     .withMessage("Just letters in the name field.")
     .isLength({ min: 3 })
-    .withMessage("At least 3 characters are required for the name.")
-    .notEmpty()
-    .withMessage("The field name cannot be empty."),
+    .withMessage("At least 3 characters are required for the name."),
   body("email")
     .notEmpty()
     .withMessage("The field email cannot be empty.")

@@ -40,24 +40,32 @@ exports.registerDebt = async (debtData) => {
 };
 
 exports.debtUpdate = async (debtId, debtData) => {
-  const debtUpdated = await prisma.debt.update({
-    where: { id: debtId },
-    data: {
-      userId: debtData.userId,
-      title: debtData.title,
-      value: debtData.value,
-      description: debtData.description,
-      status: debtData.status,
-    },
-  });
-  return debtUpdated;
+  try {
+    const debtUpdated = await prisma.debt.update({
+      where: { id: debtId },
+      data: {
+        userId: debtData.userId,
+        title: debtData.title,
+        value: debtData.value,
+        description: debtData.description,
+        status: debtData.status,
+      },
+    });
+    return debtUpdated;
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.debtDelete = async (debtId) => {
-  const debtDeleted = await prisma.debt.delete({
-    where: { id: debtId },
-  });
-  return debtDeleted;
+  try {
+    const debtDeleted = await prisma.debt.delete({
+      where: { id: debtId },
+    });
+    return debtDeleted;
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.getDebtForUser = async (userId) => {

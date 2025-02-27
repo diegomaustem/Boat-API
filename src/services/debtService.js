@@ -53,6 +53,13 @@ exports.debtUpdate = async (debtId, debtData) => {
   return debtUpdated;
 };
 
+exports.debtDelete = async (debtId) => {
+  const debtDeleted = await prisma.debt.delete({
+    where: { id: debtId },
+  });
+  return debtDeleted;
+};
+
 exports.getDebtForUser = async (userId) => {
   try {
     const userDebt = await prisma.debt.findMany({

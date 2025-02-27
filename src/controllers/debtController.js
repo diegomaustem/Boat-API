@@ -111,6 +111,32 @@ exports.debtUpdate = [
   },
 ];
 
+exports.debtDelete = [
+  async (req, res) => {
+    const debtId = parseInt(req.params.id);
+
+    if (isNaN(debtId)) {
+      return res.status(400).json({ message: "Invalid debt ID." });
+    }
+
+    try {
+      const debtExist = await verifyDebtExist(debtId);
+      if (!debtExist) {
+        return res.status(404).json({ message: "Debt not found for deleted." });
+      }
+
+      const debtDeleted = await debtService.debtDelete(debtId);
+      res
+        .status(200)
+        .json({ message: "Debt deleted successfully.", debtDeleted });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ message: "Error verifying debt existence." });
+    }
+  },
+];
+
 async function verifyUserExistWithId(userId) {
   try {
     const userExist = await userService.user(userId);

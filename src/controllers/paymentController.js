@@ -1,6 +1,8 @@
 const { validationResult } = require("express-validator");
 const paymentSchema = require("../utils/validatorsPayment");
 const paymentService = require("../services/paymentService");
+const debtService = require("../services/debtService");
+const userService = require("../services/userService");
 
 exports.payment = [
   async (req, res) => {
@@ -41,14 +43,24 @@ exports.registerPayment = [
 
   async (req, res) => {
     const errorsValidation = validationResult(req);
+    const userId = req.body.userId;
+    const debtId = req.body.debtId;
 
     if (!errorsValidation.isEmpty()) {
-      return res
-        .status(400)
-        .json({ message: errorsValidation.array()[0].message });
+      return res.status(400).json({ message: errorsValidation.array()[0].msg });
     }
 
     try {
+      const verifyUserExist = await verifyUserExistWithId(userId);
+      if (!verifyUserExist) {
+        return res.status(400).json({ message: "Not found user ID." });
+      }
+
+      const verifyDebtExist = await verifyDebtExistWithId(debtId);
+      if (!verifyDebtExist) {
+        return res.status(400).json({ message: "Not found debt ID." });
+      }
+
       const payment = await paymentService.registerPayment(req.body);
       res
         .status(201)
@@ -58,3 +70,21 @@ exports.registerPayment = [
     }
   },
 ];
+
+async function verifyUserExistWithId(userId) {
+  try {
+    const userExist = await userService.user(userId);
+    return !!userExist;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function verifyDebtExistWithId(debtId) {
+  try {
+    const debtExist = await debtService.debt(debtId);
+    return !!debtExist;
+  } catch (error) {
+    throw error;
+  }
+}

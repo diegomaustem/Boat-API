@@ -27,6 +27,7 @@ exports.registerPayment = async (paymentData) => {
     const payment = await prisma.payment.create({
       data: {
         userId: paymentData.userId,
+        debtId: paymentData.debtId,
         price: paymentData.price,
         status: paymentData.status,
       },

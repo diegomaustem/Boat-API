@@ -6,12 +6,17 @@ const paymentSchema = [
     .withMessage("The field userId cannot be empty.")
     .isNumeric()
     .withMessage("Just numbers for userId."),
+  body("debtId")
+    .notEmpty()
+    .withMessage("The field debtId cannot be empty.")
+    .isNumeric()
+    .withMessage("Just numbers for debtId."),
   body("price")
     .notEmpty()
     .withMessage("The field price cannot be empty.")
     .isNumeric()
     .withMessage("Just numbers for price."),
-  body("status ")
+  body("status")
     .notEmpty()
     .withMessage("The field status cannot be empty.")
     .isString()

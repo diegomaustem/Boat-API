@@ -37,3 +37,20 @@ exports.registerPayment = async (paymentData) => {
     throw error;
   }
 };
+
+exports.paymentUpdate = async (paymentId, paymentData) => {
+  try {
+    const paymentUpdated = await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        userId: paymentData.userId,
+        debtId: paymentData.debtId,
+        price: paymentData.price,
+        status: paymentData.status,
+      },
+    });
+    return paymentUpdated;
+  } catch (error) {
+    throw error;
+  }
+};

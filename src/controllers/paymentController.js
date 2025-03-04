@@ -3,6 +3,8 @@ const paymentSchema = require("../utils/validatorsPayment");
 const paymentService = require("../services/paymentService");
 const debtService = require("../services/debtService");
 const userService = require("../services/userService");
+const kafkaService = require("../services/kafkaService");
+const { Kafka } = require("kafkajs");
 
 exports.payment = [
   async (req, res) => {
@@ -62,6 +64,9 @@ exports.registerPayment = [
       }
 
       const payment = await paymentService.registerPayment(req.body);
+      if (payment) {
+        await registerPaymentOfKafka(payment);
+      }
       res
         .status(201)
         .json({ message: "Payment entered successfully.", payment });
@@ -175,4 +180,17 @@ async function verifyDebtExistWithId(debtId) {
   } catch (error) {
     throw error;
   }
+}
+
+async function registerPaymentOfKafka(payment) {
+  const clientId = "producer-boat";
+  const brokers = "localhost:9093";
+
+  const kafka = new Kafka({
+    clientId: clientId,
+    brokers: [brokers],
+  });
+
+  const producer = kafka.producer();
+  kafkaService.run(payment, producer);
 }

@@ -18,6 +18,12 @@ const registerSchema = [
     .withMessage("The field password cannot be empty.")
     .isLength({ min: 6 })
     .withMessage("At least 6 characters are required for the password."),
+  body("secretCode")
+    .optional({ checkFalsy: true })
+    .isNumeric()
+    .withMessage("Just numbers.")
+    .isLength({ min: 3 })
+    .withMessage("At least 3 numbers are required for the secret code."),
 ];
 
 const loginSchema = [

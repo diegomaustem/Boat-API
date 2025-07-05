@@ -4,5 +4,5 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
-  console.log("BOAT - RUNNING");
+  console.log("Server Running.");
 });

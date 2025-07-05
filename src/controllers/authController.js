@@ -37,22 +37,33 @@ exports.register = [
 
 exports.login = [
   loginSchema,
-
   async (req, res) => {
     const errorsValidation = validationResult(req);
 
     if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+      res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+      return;
     }
 
     try {
-      const { user, token } = await authService.loginUser(
-        req.body.email,
-        req.body.password
-      );
-      res.status(200).json({ user, token });
+      const { user, token } = await authService.loginUser(req.body);
+      res.status(200).json({ code: 200, status: "success", user, token });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      const code = error.statusCode || 500;
+      const message =
+        code === 500
+          ? "Internal error. Please try again later."
+          : error.message;
+
+      res.status(code).json({
+        code: code,
+        status: "error",
+        message: message,
+      });
     }
   },
 ];

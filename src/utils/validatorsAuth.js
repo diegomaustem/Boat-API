@@ -47,7 +47,19 @@ const loginSchema = [
     .isLength({ min: 6 })
     .withMessage("At least 6 characters are required for the email.")
     .isEmail()
-    .withMessage("The email is invalid."),
+    .withMessage("The email is invalid.")
+    .custom(async (value) => {
+      const existingUser = await prisma.users.findUnique({
+        where: {
+          email: value,
+        },
+      });
+
+      if (!existingUser) {
+        throw new Error("There is no user with that email.");
+      }
+      return true;
+    }),
   body("password")
     .notEmpty()
     .withMessage("The field password cannot be empty.")

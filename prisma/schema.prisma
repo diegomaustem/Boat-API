@@ -21,8 +21,8 @@ model users {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(45)
   email     String   @unique
-  password  String   @db.VarChar(30)
-  secret_code String  @db.VarChar(30)
+  password  String   @db.VarChar(200)
+  secret_code String @db.VarChar(200)
   role      Role     @default(user)
   creation_date DateTime @default(now())
   update_date DateTime @updatedAt

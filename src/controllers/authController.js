@@ -8,14 +8,29 @@ exports.register = [
     const errorsValidation = validationResult(req);
 
     if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+      res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+      return;
     }
 
     try {
       const user = await authService.registerUser(req.body);
-      res.status(201).json({ message: "User registered successfully.", user });
+      res.status(201).json({
+        code: 201,
+        status: "success",
+        message: "User registered successfully.",
+        user,
+      });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      console.error(error.message);
+      res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal error creating user. Please try again later.",
+      });
     }
   },
 ];

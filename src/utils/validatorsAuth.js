@@ -1,4 +1,7 @@
 const { body } = require("express-validator");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 const registerSchema = [
   body("name")
@@ -12,13 +15,24 @@ const registerSchema = [
     .notEmpty()
     .withMessage("The field email cannot be empty.")
     .isEmail()
-    .withMessage("The email is invalid."),
+    .withMessage("The email is invalid.")
+    .custom(async (value) => {
+      const existingUser = await prisma.users.findUnique({
+        where: {
+          email: value,
+        },
+      });
+      if (existingUser) {
+        throw new Error("This email is already registered.");
+      }
+      return true;
+    }),
   body("password")
     .notEmpty()
     .withMessage("The field password cannot be empty.")
     .isLength({ min: 6 })
     .withMessage("At least 6 characters are required for the password."),
-  body("secretCode")
+  body("secret_code")
     .optional({ checkFalsy: true })
     .isNumeric()
     .withMessage("Just numbers.")

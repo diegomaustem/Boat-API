@@ -55,7 +55,7 @@ exports.updateUser = [
       });
     }
 
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
     const userData = req.body;
 
     try {
@@ -88,7 +88,7 @@ exports.updateUser = [
 
 exports.deleteUser = [
   async (req, res) => {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
 
     try {
       const userExist = await userService.getUser(userId);
@@ -109,12 +109,12 @@ exports.deleteUser = [
         });
       }
 
-      const userDeleted = await userService.userDelete(userId);
+      const userDeleted = await userService.deleteUser(userId);
       return res.status(200).json({
         code: 200,
         status: "success",
         message: "User deleted successfully.",
-        userDeleted,
+        userDeleted: userDeleted,
       });
     } catch (error) {
       console.error(error);
@@ -127,7 +127,6 @@ exports.deleteUser = [
   },
 ];
 
-// VERIFICAR ESSE MÉTODO :::
 async function verifyUserHasDebt(userId) {
   try {
     const debtOfUser = await debtService.getDebtForUser(userId);

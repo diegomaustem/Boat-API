@@ -70,11 +70,11 @@ exports.debtDelete = async (debtId) => {
 
 exports.getDebtForUser = async (userId) => {
   try {
-    const userDebt = await prisma.debt.findMany({
-      where: { userId },
+    return await prisma.debts.findMany({
+      where: { users_id: userId },
     });
-    return userDebt;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

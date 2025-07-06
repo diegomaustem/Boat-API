@@ -32,7 +32,7 @@ exports.updateUser = async (userId, userData) => {
   try {
     return await prisma.users.update({
       where: { id: userId },
-      data: { userData },
+      data: { ...userData },
     });
   } catch (error) {
     console.error(error);

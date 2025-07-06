@@ -1,5 +1,8 @@
-const { body } = require("express-validator");
+const { param, body } = require("express-validator");
 
+const paymentIdSchema = [
+  param("id").isNumeric().withMessage("Only numbers for parameter id."),
+];
 const paymentSchema = [
   body("userId")
     .notEmpty()
@@ -25,4 +28,4 @@ const paymentSchema = [
     .withMessage("At least 3 characters are required for the status."),
 ];
 
-module.exports = paymentSchema;
+module.exports = (paymentSchema, paymentIdSchema);

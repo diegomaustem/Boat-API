@@ -1,13 +1,13 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.payment = async (id) => {
+exports.getPayment = async (id) => {
   try {
-    const payment = await prisma.payment.findUnique({
-      where: { id: Number(id) },
+    return await prisma.payments.findUnique({
+      where: { id: id },
     });
-    return payment;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

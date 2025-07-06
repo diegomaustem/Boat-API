@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const paymentIdSchema = require("../utils/validatorsPayment");
 const paymentSchema = require("../utils/validatorsPayment");
 const paymentService = require("../services/paymentService");
 const debtService = require("../services/debtService");
@@ -15,8 +16,8 @@ exports.getPayments = [
         .json({ code: 200, status: "success", payments: payments });
     } catch (error) {
       console.error(error);
-      return res.status(400).json({
-        code: 400,
+      return res.status(500).json({
+        code: 500,
         status: "error",
         message: "Internal error. Please try again later.",
       });
@@ -25,24 +26,39 @@ exports.getPayments = [
 ];
 
 exports.getPayment = [
+  paymentIdSchema,
   async (req, res) => {
+    const errorsValidation = validationResult(req);
+
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
+
     try {
-      const paymentId = req.params.id;
+      const paymentId = parseInt(req.params.id);
 
-      if (isNaN(paymentId)) {
-        return res.status(400).json("Invalid payment ID.");
-      }
-
-      const payment = await paymentService.payment(paymentId);
-
+      const payment = await paymentService.getPayment(paymentId);
       if (!payment) {
-        return res.status(404).json({ message: "Payment not found." });
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Payment not found.",
+        });
       }
-      return res.json(payment);
-    } catch (error) {
+
       return res
-        .status(500)
-        .json({ message: "Ops, query payment error. Try later." });
+        .status(200)
+        .json({ code: 200, status: "success", payament: payment });
+    } catch (error) {
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
     }
   },
 ];

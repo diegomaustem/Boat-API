@@ -1,5 +1,4 @@
 const { PrismaClient } = require("@prisma/client");
-
 const prisma = new PrismaClient();
 
 exports.payment = async (id) => {
@@ -13,11 +12,11 @@ exports.payment = async (id) => {
   }
 };
 
-exports.payments = async () => {
+exports.getPayments = async () => {
   try {
-    const payments = await prisma.payment.findMany();
-    return payments;
+    return await prisma.payments.findMany();
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

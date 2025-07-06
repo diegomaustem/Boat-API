@@ -6,7 +6,25 @@ const userService = require("../services/userService");
 const kafkaService = require("../services/kafkaService");
 const { Kafka } = require("kafkajs");
 
-exports.payment = [
+exports.getPayments = [
+  async (req, res) => {
+    try {
+      const payments = await paymentService.getPayments();
+      return res
+        .status(200)
+        .json({ code: 200, status: "success", payments: payments });
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: "Internal error. Please try again later.",
+      });
+    }
+  },
+];
+
+exports.getPayment = [
   async (req, res) => {
     try {
       const paymentId = req.params.id;
@@ -25,17 +43,6 @@ exports.payment = [
       return res
         .status(500)
         .json({ message: "Ops, query payment error. Try later." });
-    }
-  },
-];
-
-exports.payments = [
-  async (req, res) => {
-    try {
-      const payments = await paymentService.payments();
-      res.status(200).json(payments);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
     }
   },
 ];
@@ -76,7 +83,7 @@ exports.registerPayment = [
   },
 ];
 
-exports.paymentUpdate = [
+exports.updatePayment = [
   paymentSchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
@@ -127,7 +134,7 @@ exports.paymentUpdate = [
   },
 ];
 
-exports.paymentDelete = [
+exports.deletePayment = [
   async (req, res) => {
     const paymentId = parseInt(req.params.id);
 

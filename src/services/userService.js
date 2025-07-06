@@ -3,54 +3,50 @@ const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
-exports.users = async () => {
+exports.getUsers = async () => {
   try {
-    const users = await prisma.user.findMany();
-    return users;
+    return await prisma.users.findMany();
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.user = async (userId) => {
+exports.getUser = async (userId) => {
   try {
-    const user = await prisma.user.findUnique({
+    return await prisma.users.findUnique({
       where: { id: Number(userId) },
     });
-    return user;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.userUpdate = async (userId, userData) => {
-  let hashedPassword;
-
+exports.updateUser = async (userId, userData) => {
   if (userData.password) {
-    hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    userData.password = hashedPassword;
   }
+
   try {
-    const userUpdated = await prisma.user.update({
+    return await prisma.users.update({
       where: { id: userId },
-      data: {
-        name: userData.name,
-        email: userData.email,
-        password: hashedPassword,
-      },
+      data: { userData },
     });
-    return userUpdated;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.userDelete = async (userId) => {
+exports.deleteUser = async (userId) => {
   try {
-    const userDeleted = await prisma.user.delete({
+    return await prisma.users.delete({
       where: { id: userId },
     });
-    return userDeleted;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

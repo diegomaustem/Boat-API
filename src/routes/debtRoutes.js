@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-
 const debtController = require("../controllers/debtController");
 
-router.get("/debts", debtController.debts);
-router.get("/debt/:id", debtController.debt);
+router.get("/debts", debtController.getDebts);
+router.get("/debt/:id", debtController.getDebt);
 router.post("/debt", debtController.registerDebt);
-router.put("/debt-update/:id", debtController.debtUpdate);
-router.delete("/debt-delete/:id", debtController.debtDelete);
+router.put("/debt/:id", debtController.updateDebt);
+router.delete("/debt/:id", debtController.deleteDebt);
 
 module.exports = router;

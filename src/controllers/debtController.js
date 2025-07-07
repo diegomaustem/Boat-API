@@ -1,166 +1,194 @@
 const { validationResult } = require("express-validator");
-const debtSchema = require("../utils/validatorsDebt");
+const debtBodySchema = require("../utils/validatorsDebt/debtBodyValidation");
+const debtParamSchema = require("../utils/validatorsDebt/debtParamValidation");
 const debtService = require("../services/debtService");
 const userService = require("../services/userService");
 
-exports.debts = [
+exports.getDebts = [
   async (req, res) => {
     try {
-      const debts = await debtService.debts();
-      return res.status(200).json(debts);
+      const debts = await debtService.getDebts();
+      return res
+        .status(200)
+        .json({ code: 200, status: "success", debts: debts });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Ops, query error. Try later." });
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal error. Please try again later.",
+      });
     }
   },
 ];
 
-exports.debt = [
+exports.getDebt = [
+  debtParamSchema,
   async (req, res) => {
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
+
     try {
-      const debtId = req.params.id;
+      const debtId = parseInt(req.params.id);
 
-      if (isNaN(debtId)) {
-        return res.status(400).json("Invalid debt ID.");
-      }
-
-      const debt = await debtService.debt(debtId);
+      const debt = await debtService.getDebt(debtId);
       if (!debt) {
-        return res.status(404).json({ message: "Debt not found." });
+        return res
+          .status(404)
+          .json({ code: 404, status: "error", message: "Debt not found." });
       }
-      return res.json(debt);
+      return res.status(200).json({ code: 200, status: "success", debt: debt });
     } catch (error) {
-      return res.status(500).json({ message: "Ops, query error. Try later." });
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal error. Please try again later.",
+      });
     }
   },
 ];
 
 exports.registerDebt = [
-  debtSchema,
+  debtBodySchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
-    const userId = req.body.userId;
-
     if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
     }
 
-    if (isNaN(userId)) {
-      return res.status(400).json({ message: "Invalid user ID." });
-    }
+    try {
+      const userId = parseInt(req.body.userId);
+      const user = await userService.getUser(userId);
 
-    const verifyUserExist = await verifyUserExistWithId(userId);
-
-    if (verifyUserExist) {
-      try {
-        const debt = await debtService.registerDebt(req.body);
-        res.status(201).json({ message: "Debt created successfully.", debt });
-      } catch (error) {
-        res.status(400).json({ message: error.message });
+      if (!user) {
+        res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "The debit cannot be linked to the selected user.",
+        });
+        return;
       }
-    } else {
-      return res
-        .status(400)
-        .json({ message: "No users registered with this ID." });
+
+      const debt = await debtService.registerDebt(req.body);
+      return res.status(201).json({
+        code: 201,
+        status: "success",
+        message: "Debt created successfully.",
+        debt: debt,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal error. Please try again later.",
+      });
     }
   },
 ];
 
-exports.debtUpdate = [
-  debtSchema,
+exports.updateDebt = [
+  debtParamSchema,
+  debtBodySchema,
   async (req, res) => {
-    const debtId = parseInt(req.params.id);
-    const debtData = req.body;
-    const userIdDebt = req.body.userId;
-
-    if (isNaN(debtId)) {
-      return res.status(400).json({ message: "Invalid debt ID." });
-    }
-
-    try {
-      const debtExist = await verifyDebtExist(debtId);
-      if (!debtExist) {
-        return res.status(404).json({ message: "Debt not found for update." });
-      }
-
-      const userIdExistDebt = await getDebtForUser(userIdDebt);
-      if (!userIdExistDebt) {
-        return res
-          .status(404)
-          .json({ message: "User id not found for update debt." });
-      }
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Error verifying debt existence." });
-    }
-
     const errorsValidation = validationResult(req);
     if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
     }
 
     try {
-      const debtUpdated = await debtService.debtUpdate(debtId, debtData);
-      res
-        .status(200)
-        .json({ message: "Debt updated successfully.", debtUpdated });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating debt." });
-    }
-  },
-];
+      const debtId = parseInt(req.params.id);
+      const userId = parseInt(req.body.userId);
 
-exports.debtDelete = [
-  async (req, res) => {
-    const debtId = parseInt(req.params.id);
-
-    if (isNaN(debtId)) {
-      return res.status(400).json({ message: "Invalid debt ID." });
-    }
-
-    try {
-      const debtExist = await verifyDebtExist(debtId);
-      if (!debtExist) {
-        return res.status(404).json({ message: "Debt not found for deleted." });
+      const debt = await debtService.getDebt(debtId);
+      if (!debt) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Debt not found for update.",
+        });
       }
 
-      const debtDeleted = await debtService.debtDelete(debtId);
-      res
-        .status(200)
-        .json({ message: "Debt deleted successfully.", debtDeleted });
+      const user = await userService.getUser(userId);
+      if (!user) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "User id not found for update debt.",
+        });
+      }
+
+      const debtUpdated = await debtService.updateDebt(debtId, req.body);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Debt updated successfully.",
+        debtUpdated: debtUpdated,
+      });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Error verifying debt existence." });
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
     }
   },
 ];
 
-async function verifyUserExistWithId(userId) {
-  try {
-    const userExist = await userService.user(userId);
-    return !!userExist;
-  } catch (error) {
-    console.error("Error in verifyUserExist:", error);
-    throw error;
-  }
-}
+exports.deleteDebt = [
+  debtParamSchema,
+  async (req, res) => {
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
 
-async function verifyDebtExist(debtId) {
-  try {
-    const debtExist = await debtService.debt(debtId);
-    return !!debtExist;
-  } catch (error) {
-    throw error;
-  }
-}
+    try {
+      const debtId = parseInt(req.params.id);
 
-async function getDebtForUser(userIdDebt) {
-  try {
-    const debtOfUserId = await debtService.getDebtForUser(userIdDebt);
-    return debtOfUserId.length > 0;
-  } catch (error) {
-    throw error;
-  }
-}
+      const debt = await debtService.getDebt(debtId);
+      if (!debt) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Debt not found for delete.",
+        });
+      }
+
+      const debtDeleted = await debtService.deleteDebt(debtId);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Debt deleted successfully.",
+        debtDeleted,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
+    }
+  },
+];

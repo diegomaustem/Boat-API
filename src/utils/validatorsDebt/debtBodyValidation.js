@@ -1,6 +1,6 @@
 const { body } = require("express-validator");
 
-const debtSchema = [
+const debtBodySchema = [
   body("userId")
     .notEmpty()
     .withMessage("The field userID cannot be empty.")
@@ -28,4 +28,4 @@ const debtSchema = [
     .withMessage("Just characters for status."),
 ];
 
-module.exports = debtSchema;
+module.exports = debtBodySchema;

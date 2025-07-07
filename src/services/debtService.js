@@ -1,69 +1,58 @@
 const { PrismaClient } = require("@prisma/client");
-
 const prisma = new PrismaClient();
 
-exports.debts = async () => {
+exports.getDebts = async () => {
   try {
-    const debts = await prisma.debt.findMany();
-    return debts;
+    return await prisma.debts.findMany();
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.debt = async (debtId) => {
+exports.getDebt = async (debtId) => {
   try {
-    const debt = await prisma.debt.findUnique({
-      where: { id: Number(debtId) },
+    return await prisma.debts.findUnique({
+      where: { id: debtId },
     });
-    return debt;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
 exports.registerDebt = async (debtData) => {
   try {
-    const debt = await prisma.debt.create({
-      data: {
-        userId: debtData.userId,
-        title: debtData.title,
-        value: debtData.value,
-        description: debtData.description,
-        status: debtData.status,
-      },
+    return await prisma.debts.create({
+      data: { ...debtData },
     });
-    return debt;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.debtUpdate = async (debtId, debtData) => {
+exports.updateDebt = async (debtId, debtData) => {
   try {
-    const debtUpdated = await prisma.debt.update({
+    return await prisma.debts.update({
       where: { id: debtId },
       data: {
-        userId: debtData.userId,
-        title: debtData.title,
-        value: debtData.value,
-        description: debtData.description,
-        status: debtData.status,
+        ...debtData,
       },
     });
-    return debtUpdated;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
 
-exports.debtDelete = async (debtId) => {
+exports.deleteDebt = async (debtId) => {
   try {
-    const debtDeleted = await prisma.debt.delete({
+    return await prisma.debts.delete({
       where: { id: debtId },
     });
-    return debtDeleted;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

@@ -1,7 +1,5 @@
-const { param, body } = require("express-validator");
-
-const userSchema = [
-  param("id").isNumeric().withMessage("Only numbers for parameter id."),
+const { body } = require("express-validator");
+const userBodySchema = [
   body("name")
     .notEmpty()
     .withMessage("The field name cannot be empty.")
@@ -23,4 +21,4 @@ const userSchema = [
     .withMessage("At least 6 characters are required for the password."),
 ];
 
-module.exports = userSchema;
+module.exports = userBodySchema;

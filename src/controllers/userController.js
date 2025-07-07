@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
-const userSchema = require("../utils/validatorsUser");
+const userParamSchema = require("../utils/validationsUser/userParamValidation");
+const userBodySchema = require("../utils/validationsUser/userBodyValidation");
 const userService = require("../services/userService");
 const debtService = require("../services/debtService");
 
@@ -20,7 +21,7 @@ exports.getUsers = [
 ];
 
 exports.getUser = [
-  userSchema,
+  userParamSchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
 
@@ -55,7 +56,8 @@ exports.getUser = [
 ];
 
 exports.updateUser = [
-  userSchema,
+  ...userParamSchema,
+  ...userBodySchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
     if (!errorsValidation.isEmpty()) {
@@ -98,10 +100,19 @@ exports.updateUser = [
 ];
 
 exports.deleteUser = [
+  userParamSchema,
   async (req, res) => {
-    const userId = parseInt(req.params.id);
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
 
     try {
+      const userId = parseInt(req.params.id);
       const userExist = await userService.getUser(userId);
       if (!userExist) {
         return res.status(404).json({

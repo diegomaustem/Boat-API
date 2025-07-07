@@ -20,9 +20,20 @@ exports.getUsers = [
 ];
 
 exports.getUser = [
+  userSchema,
   async (req, res) => {
+    const errorsValidation = validationResult(req);
+
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
+
     try {
-      const userId = req.params.id;
+      const userId = parseInt(req.params.id);
       const user = await userService.getUser(userId);
 
       if (!user) {
@@ -37,7 +48,7 @@ exports.getUser = [
       return res.status(500).json({
         code: 500,
         status: "error",
-        message: "An internal error has occurred. Try later. Try later.",
+        message: "An internal error has occurred. Try later.",
       });
     }
   },
@@ -80,7 +91,7 @@ exports.updateUser = [
       return res.status(500).json({
         code: 500,
         status: "error",
-        message: "Error updating user.",
+        message: "An internal error has occurred. Try later.",
       });
     }
   },
@@ -121,7 +132,7 @@ exports.deleteUser = [
       return res.status(500).json({
         code: 500,
         status: "error",
-        message: "Error deleting user. Please try again later.",
+        message: "An internal error has occurred. Try later.",
       });
     }
   },

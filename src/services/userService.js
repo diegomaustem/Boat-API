@@ -15,7 +15,7 @@ exports.getUsers = async () => {
 exports.getUser = async (userId) => {
   try {
     return await prisma.users.findUnique({
-      where: { id: Number(userId) },
+      where: { id: userId },
     });
   } catch (error) {
     console.error(error);

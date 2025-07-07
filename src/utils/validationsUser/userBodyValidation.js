@@ -19,6 +19,11 @@ const userBodySchema = [
     .withMessage("String is required in the password field.")
     .isLength({ min: 6 })
     .withMessage("At least 6 characters are required for the password."),
+  body("role")
+    .notEmpty()
+    .withMessage("The field role cannot be empty.")
+    .isString()
+    .withMessage("String is required in the role field."),
 ];
 
 module.exports = userBodySchema;

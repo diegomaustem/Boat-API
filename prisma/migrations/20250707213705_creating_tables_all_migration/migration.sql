@@ -19,7 +19,7 @@ CREATE TABLE "users" (
 CREATE TABLE "payments" (
     "id" SERIAL NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
-    "status" VARCHAR(15) NOT NULL DEFAULT 'paid',
+    "status" VARCHAR(15) NOT NULL,
     "users_id" INTEGER NOT NULL,
     "debts_id" INTEGER NOT NULL,
     "creation_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -34,7 +34,7 @@ CREATE TABLE "debts" (
     "title" VARCHAR(30) NOT NULL,
     "value" DECIMAL(10,2) NOT NULL,
     "description" VARCHAR(65) NOT NULL,
-    "status" VARCHAR(15) NOT NULL DEFAULT 'pending',
+    "status" VARCHAR(15) NOT NULL,
     "users_id" INTEGER NOT NULL,
     "creation_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "update_date" TIMESTAMP(3) NOT NULL,

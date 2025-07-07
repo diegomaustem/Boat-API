@@ -7,6 +7,7 @@
     Módulo gerenciamento de pagamentos
     Módulo gerenciamento de dívidas
     Módulo autenticação de users com JWT
+    Mensageria - Kafka(Em construção)
 
 # Tecnologias
 

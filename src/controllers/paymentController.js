@@ -75,11 +75,11 @@ exports.registerPayment = [
     }
 
     try {
-      const userId = parseInt(req.body.userId);
-      const debtId = parseInt(req.body.debtId);
+      const userId = parseInt(req.body.users_id);
+      const debtId = parseInt(req.body.debts_id);
 
-      const verifyUserExist = await userService.getUser(userId);
-      if (!verifyUserExist) {
+      const user = await userService.getUser(userId);
+      if (!user) {
         return res.status(400).json({
           code: 400,
           status: "error",
@@ -87,8 +87,8 @@ exports.registerPayment = [
         });
       }
 
-      const verifyDebtExist = await debtService.debt(debtId);
-      if (!verifyDebtExist) {
+      const debt = await debtService.getDebt(debtId);
+      if (!debt) {
         return res.status(400).json({
           code: 400,
           status: "error",
@@ -129,8 +129,8 @@ exports.updatePayment = [
     }
 
     try {
-      const userId = parseInt(req.body.userId);
-      const debtId = parseInt(req.body.debtId);
+      const userId = parseInt(req.body.users_id);
+      const debtId = parseInt(req.body.debts_id);
       const paymentId = parseInt(req.params.id);
 
       const payment = await paymentService.getPayment(paymentId);

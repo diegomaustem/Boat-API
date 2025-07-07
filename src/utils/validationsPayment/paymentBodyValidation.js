@@ -1,12 +1,12 @@
 const { body } = require("express-validator");
 
 const paymentBodySchema = [
-  body("userId")
+  body("users_id")
     .notEmpty()
     .withMessage("The field userId cannot be empty.")
     .isNumeric()
     .withMessage("Just numbers for userId."),
-  body("debtId")
+  body("debts_id")
     .notEmpty()
     .withMessage("The field debtId cannot be empty.")
     .isNumeric()

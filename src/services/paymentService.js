@@ -34,30 +34,27 @@ exports.registerPayment = async (paymentData) => {
   }
 };
 
-exports.paymentUpdate = async (paymentId, paymentData) => {
+exports.updatePayament = async (paymentId, paymentData) => {
   try {
-    const paymentUpdated = await prisma.payment.update({
+    return await prisma.payments.update({
       where: { id: paymentId },
       data: {
-        userId: paymentData.userId,
-        debtId: paymentData.debtId,
-        price: paymentData.price,
-        status: paymentData.status,
+        ...paymentData,
       },
     });
-    return paymentUpdated;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
 
-exports.paymentDelete = async (paymentId) => {
+exports.deletePayment = async (paymentId) => {
   try {
-    const paymentDeleted = await prisma.payment.delete({
+    return await prisma.payments.delete({
       where: { id: paymentId },
     });
-    return paymentDeleted;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

@@ -1,7 +1,6 @@
 const { validationResult } = require("express-validator");
 const paymentBodySchema = require("../utils/validationsPayment/paymentBodyValidation");
 const paymentParamSchema = require("../utils/validationsPayment/paymentParamValidation");
-
 const paymentService = require("../services/paymentService");
 const debtService = require("../services/debtService");
 const userService = require("../services/userService");
@@ -116,93 +115,114 @@ exports.registerPayment = [
   },
 ];
 
-// exports.updatePayment = [
-//   paymentSchema,
-//   async (req, res) => {
-//     const errorsValidation = validationResult(req);
-//     const paymentId = parseInt(req.params.id);
-//     const userId = req.body.userId;
-//     const debtId = req.body.debtId;
-//     const paymentData = req.body;
+exports.updatePayment = [
+  paymentBodySchema,
+  paymentParamSchema,
+  async (req, res) => {
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
 
-//     if (isNaN(paymentId)) {
-//       return res.status(400).json({ message: "Invalid payment ID." });
-//     }
+    try {
+      const userId = parseInt(req.body.userId);
+      const debtId = parseInt(req.body.debtId);
+      const paymentId = parseInt(req.params.id);
 
-//     if (!errorsValidation.isEmpty()) {
-//       return res.status(400).json({ message: errorsValidation.array()[0].msg });
-//     }
+      const payment = await paymentService.getPayment(paymentId);
+      if (!payment) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Payment not found for update.",
+        });
+      }
 
-//     try {
-//       const verifyPaymentIdExist = await verifyPaymentExistWithId(paymentId);
-//       if (!verifyPaymentIdExist) {
-//         return res
-//           .status(404)
-//           .json({ message: "Payment not found for update." });
-//       }
+      const user = await userService.getUser(userId);
+      if (!user) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "User/Payment ID not found.",
+        });
+      }
 
-//       const verifyUserExist = await verifyUserExistWithId(userId);
-//       if (!verifyUserExist) {
-//         return res.status(400).json({ message: "Not found user ID." });
-//       }
+      const debt = await debtService.getDebt(debtId);
+      if (!debt) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Debt/Payment ID not found.",
+        });
+      }
 
-//       const verifyDebtExist = await verifyDebtExistWithId(debtId);
-//       if (!verifyDebtExist) {
-//         return res.status(400).json({ message: "Not found debt ID." });
-//       }
+      const paymentUpdated = await paymentService.updatePayament(
+        paymentId,
+        req.body
+      );
 
-//       const paymentUpdated = await paymentService.paymentUpdate(
-//         paymentId,
-//         paymentData
-//       );
-//       if (paymentUpdated) {
-//         res
-//           .status(200)
-//           .json({ message: "Payment updated successfully.", paymentUpdated });
-//       }
-//     } catch (error) {
-//       console.log(error);
-//       return res.status(500).json({ message: "Error updating payment." });
-//     }
-//   },
-// ];
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Payment updated successfully.",
+        paymentUpdated: paymentUpdated,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
+    }
+  },
+];
 
-// exports.deletePayment = [
-//   async (req, res) => {
-//     const paymentId = parseInt(req.params.id);
+exports.deletePayment = [
+  paymentParamSchema,
+  async (req, res) => {
+    const errorsValidation = validationResult(req);
+    if (!errorsValidation.isEmpty()) {
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
+    }
 
-//     if (isNaN(paymentId)) {
-//       return res.status(400).json({ message: "Invalid payment ID." });
-//     }
+    try {
+      const paymentId = parseInt(req.params.id);
 
-//     try {
-//       const paymentExist = await verifyPaymentExistWithId(paymentId);
-//       if (!paymentExist) {
-//         return res
-//           .status(404)
-//           .json({ message: "Payment not found for deleted." });
-//       }
+      const paymentExist = await paymentService.getPayment(paymentId);
+      if (!paymentExist) {
+        return res.status(404).json({
+          code: 404,
+          status: "error",
+          message: "Payment not found for deleted.",
+        });
+      }
 
-//       const paymentDeleted = await paymentService.paymentDelete(paymentId);
-//       res
-//         .status(200)
-//         .json({ message: "Payment deleted successfully.", paymentDeleted });
-//     } catch (error) {
-//       return res
-//         .status(500)
-//         .json({ message: "Error verifying payment existence." });
-//     }
-//   },
-// ];
-
-// async function verifyPaymentExistWithId(paymentId) {
-//   try {
-//     const paymentExist = await paymentService.payment(paymentId);
-//     return !!paymentExist;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
+      const paymentDeleted = await paymentService.deletePayment(paymentId);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "Payment deleted successfully.",
+        paymentDeleted: paymentDeleted,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
+    }
+  },
+];
 
 // async function registerPaymentOfKafka(payment) {
 //   const clientId = "producer-boat";

@@ -68,7 +68,7 @@ exports.registerDebt = [
     }
 
     try {
-      const userId = parseInt(req.body.userId);
+      const userId = parseInt(req.body.users_id);
       const user = await userService.getUser(userId);
 
       if (!user) {
@@ -113,7 +113,7 @@ exports.updateDebt = [
 
     try {
       const debtId = parseInt(req.params.id);
-      const userId = parseInt(req.body.userId);
+      const userId = parseInt(req.body.users_id);
 
       const debt = await debtService.getDebt(debtId);
       if (!debt) {

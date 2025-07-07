@@ -1,7 +1,7 @@
 const { body } = require("express-validator");
 
 const debtBodySchema = [
-  body("userId")
+  body("users_id")
     .notEmpty()
     .withMessage("The field userID cannot be empty.")
     .isNumeric()

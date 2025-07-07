@@ -7,7 +7,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.get("/payments", paymentController.getPayments);
 router.get("/payment/:id", paymentController.getPayment);
 router.post("/payment", paymentController.registerPayment);
-router.put("/payment/:id", paymentController.updatePayment);
-router.delete("/payment/:id", paymentController.deletePayment);
+// router.put("/payment/:id", paymentController.updatePayment);
+// router.delete("/payment/:id", paymentController.deletePayment);
 
 module.exports = router;

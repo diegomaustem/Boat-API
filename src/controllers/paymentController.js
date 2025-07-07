@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
-const paymentIdSchema = require("../utils/validatorsPayment");
-const paymentSchema = require("../utils/validatorsPayment");
+const paymentBodySchema = require("../utils/validationsPayment/paymentBodyValidation");
+const paymentParamSchema = require("../utils/validationsPayment/paymentParamValidation");
+
 const paymentService = require("../services/paymentService");
 const debtService = require("../services/debtService");
 const userService = require("../services/userService");
@@ -26,10 +27,9 @@ exports.getPayments = [
 ];
 
 exports.getPayment = [
-  paymentIdSchema,
+  paymentParamSchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
-
     if (!errorsValidation.isEmpty()) {
       return res.status(400).json({
         code: 400,
@@ -40,8 +40,8 @@ exports.getPayment = [
 
     try {
       const paymentId = parseInt(req.params.id);
-
       const payment = await paymentService.getPayment(paymentId);
+
       if (!payment) {
         return res.status(404).json({
           code: 404,
@@ -64,156 +64,155 @@ exports.getPayment = [
 ];
 
 exports.registerPayment = [
-  paymentSchema,
-
+  paymentBodySchema,
   async (req, res) => {
     const errorsValidation = validationResult(req);
-    const userId = req.body.userId;
-    const debtId = req.body.debtId;
-
     if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
+      return res.status(400).json({
+        code: 400,
+        status: "error",
+        message: errorsValidation.array()[0].msg,
+      });
     }
 
     try {
-      const verifyUserExist = await verifyUserExistWithId(userId);
+      const userId = parseInt(req.body.userId);
+      const debtId = parseInt(req.body.debtId);
+
+      const verifyUserExist = await userService.getUser(userId);
       if (!verifyUserExist) {
-        return res.status(400).json({ message: "Not found user ID." });
+        return res.status(400).json({
+          code: 400,
+          status: "error",
+          message: "The user id provided is not valid.",
+        });
       }
 
-      const verifyDebtExist = await verifyDebtExistWithId(debtId);
+      const verifyDebtExist = await debtService.debt(debtId);
       if (!verifyDebtExist) {
-        return res.status(400).json({ message: "Not found debt ID." });
+        return res.status(400).json({
+          code: 400,
+          status: "error",
+          message: "The debt id provided is not valid.",
+        });
       }
 
       const payment = await paymentService.registerPayment(req.body);
-      if (payment) {
-        await registerPaymentOfKafka(payment);
-      }
-      res
-        .status(201)
-        .json({ message: "Payment entered successfully.", payment });
+      // if (payment) { await registerPaymentOfKafka(payment);}
+      return res.status(201).json({
+        code: 201,
+        status: "success",
+        message: "Payment entered successfully.",
+        payment,
+      });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      console.error(error);
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "An internal error has occurred. Try later.",
+      });
     }
   },
 ];
 
-exports.updatePayment = [
-  paymentSchema,
-  async (req, res) => {
-    const errorsValidation = validationResult(req);
-    const paymentId = parseInt(req.params.id);
-    const userId = req.body.userId;
-    const debtId = req.body.debtId;
-    const paymentData = req.body;
+// exports.updatePayment = [
+//   paymentSchema,
+//   async (req, res) => {
+//     const errorsValidation = validationResult(req);
+//     const paymentId = parseInt(req.params.id);
+//     const userId = req.body.userId;
+//     const debtId = req.body.debtId;
+//     const paymentData = req.body;
 
-    if (isNaN(paymentId)) {
-      return res.status(400).json({ message: "Invalid payment ID." });
-    }
+//     if (isNaN(paymentId)) {
+//       return res.status(400).json({ message: "Invalid payment ID." });
+//     }
 
-    if (!errorsValidation.isEmpty()) {
-      return res.status(400).json({ message: errorsValidation.array()[0].msg });
-    }
+//     if (!errorsValidation.isEmpty()) {
+//       return res.status(400).json({ message: errorsValidation.array()[0].msg });
+//     }
 
-    try {
-      const verifyPaymentIdExist = await verifyPaymentExistWithId(paymentId);
-      if (!verifyPaymentIdExist) {
-        return res
-          .status(404)
-          .json({ message: "Payment not found for update." });
-      }
+//     try {
+//       const verifyPaymentIdExist = await verifyPaymentExistWithId(paymentId);
+//       if (!verifyPaymentIdExist) {
+//         return res
+//           .status(404)
+//           .json({ message: "Payment not found for update." });
+//       }
 
-      const verifyUserExist = await verifyUserExistWithId(userId);
-      if (!verifyUserExist) {
-        return res.status(400).json({ message: "Not found user ID." });
-      }
+//       const verifyUserExist = await verifyUserExistWithId(userId);
+//       if (!verifyUserExist) {
+//         return res.status(400).json({ message: "Not found user ID." });
+//       }
 
-      const verifyDebtExist = await verifyDebtExistWithId(debtId);
-      if (!verifyDebtExist) {
-        return res.status(400).json({ message: "Not found debt ID." });
-      }
+//       const verifyDebtExist = await verifyDebtExistWithId(debtId);
+//       if (!verifyDebtExist) {
+//         return res.status(400).json({ message: "Not found debt ID." });
+//       }
 
-      const paymentUpdated = await paymentService.paymentUpdate(
-        paymentId,
-        paymentData
-      );
-      if (paymentUpdated) {
-        res
-          .status(200)
-          .json({ message: "Payment updated successfully.", paymentUpdated });
-      }
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Error updating payment." });
-    }
-  },
-];
+//       const paymentUpdated = await paymentService.paymentUpdate(
+//         paymentId,
+//         paymentData
+//       );
+//       if (paymentUpdated) {
+//         res
+//           .status(200)
+//           .json({ message: "Payment updated successfully.", paymentUpdated });
+//       }
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(500).json({ message: "Error updating payment." });
+//     }
+//   },
+// ];
 
-exports.deletePayment = [
-  async (req, res) => {
-    const paymentId = parseInt(req.params.id);
+// exports.deletePayment = [
+//   async (req, res) => {
+//     const paymentId = parseInt(req.params.id);
 
-    if (isNaN(paymentId)) {
-      return res.status(400).json({ message: "Invalid payment ID." });
-    }
+//     if (isNaN(paymentId)) {
+//       return res.status(400).json({ message: "Invalid payment ID." });
+//     }
 
-    try {
-      const paymentExist = await verifyPaymentExistWithId(paymentId);
-      if (!paymentExist) {
-        return res
-          .status(404)
-          .json({ message: "Payment not found for deleted." });
-      }
+//     try {
+//       const paymentExist = await verifyPaymentExistWithId(paymentId);
+//       if (!paymentExist) {
+//         return res
+//           .status(404)
+//           .json({ message: "Payment not found for deleted." });
+//       }
 
-      const paymentDeleted = await paymentService.paymentDelete(paymentId);
-      res
-        .status(200)
-        .json({ message: "Payment deleted successfully.", paymentDeleted });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Error verifying payment existence." });
-    }
-  },
-];
+//       const paymentDeleted = await paymentService.paymentDelete(paymentId);
+//       res
+//         .status(200)
+//         .json({ message: "Payment deleted successfully.", paymentDeleted });
+//     } catch (error) {
+//       return res
+//         .status(500)
+//         .json({ message: "Error verifying payment existence." });
+//     }
+//   },
+// ];
 
-async function verifyPaymentExistWithId(paymentId) {
-  try {
-    const paymentExist = await paymentService.payment(paymentId);
-    return !!paymentExist;
-  } catch (error) {
-    throw error;
-  }
-}
+// async function verifyPaymentExistWithId(paymentId) {
+//   try {
+//     const paymentExist = await paymentService.payment(paymentId);
+//     return !!paymentExist;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
-async function verifyUserExistWithId(userId) {
-  try {
-    const userExist = await userService.user(userId);
-    return !!userExist;
-  } catch (error) {
-    throw error;
-  }
-}
+// async function registerPaymentOfKafka(payment) {
+//   const clientId = "producer-boat";
+//   const brokers = "localhost:9093";
 
-async function verifyDebtExistWithId(debtId) {
-  try {
-    const debtExist = await debtService.debt(debtId);
-    return !!debtExist;
-  } catch (error) {
-    throw error;
-  }
-}
+//   const kafka = new Kafka({
+//     clientId: clientId,
+//     brokers: [brokers],
+//   });
 
-async function registerPaymentOfKafka(payment) {
-  const clientId = "producer-boat";
-  const brokers = "localhost:9093";
-
-  const kafka = new Kafka({
-    clientId: clientId,
-    brokers: [brokers],
-  });
-
-  const producer = kafka.producer();
-  kafkaService.run(payment, producer);
-}
+//   const producer = kafka.producer();
+//   kafkaService.run(payment, producer);
+// }

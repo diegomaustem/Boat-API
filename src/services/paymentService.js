@@ -1,17 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.getPayment = async (id) => {
-  try {
-    return await prisma.payments.findUnique({
-      where: { id: id },
-    });
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
 exports.getPayments = async () => {
   try {
     return await prisma.payments.findMany();
@@ -21,18 +10,26 @@ exports.getPayments = async () => {
   }
 };
 
+exports.getPayment = async (paymentId) => {
+  try {
+    return await prisma.payments.findUnique({
+      where: { id: paymentId },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 exports.registerPayment = async (paymentData) => {
   try {
-    const payment = await prisma.payment.create({
+    return await prisma.payments.create({
       data: {
-        userId: paymentData.userId,
-        debtId: paymentData.debtId,
-        price: paymentData.price,
-        status: paymentData.status,
+        ...paymentData,
       },
     });
-    return payment;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };

@@ -3,6 +3,7 @@ const debtBodySchema = require("../utils/validatorsDebt/debtBodyValidation");
 const debtParamSchema = require("../utils/validatorsDebt/debtParamValidation");
 const debtService = require("../services/debtService");
 const userService = require("../services/userService");
+const paymentService = require("../services/paymentService");
 
 exports.getDebts = [
   async (req, res) => {
@@ -172,6 +173,16 @@ exports.deleteDebt = [
           code: 404,
           status: "error",
           message: "Debt not found for delete.",
+        });
+      }
+
+      const debtHasPayments = await paymentService.getDebtHasPayments(debtId);
+      if (debtHasPayments) {
+        return res.status(404).json({
+          code: 400,
+          status: "error",
+          message:
+            "There is a payment conditional on the debit. Exclusion denied.",
         });
       }
 

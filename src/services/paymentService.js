@@ -58,3 +58,14 @@ exports.deletePayment = async (paymentId) => {
     throw error;
   }
 };
+
+exports.getDebtHasPayments = async (debtId) => {
+  try {
+    return await prisma.payments.findFirst({
+      where: { debts_id: debtId },
+    });
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

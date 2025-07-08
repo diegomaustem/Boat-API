@@ -12,3 +12,15 @@
 # Tecnologias
 
     Node.js + Express + Prisma ORM
+
+# EndPoints
+
+    Registrar usuários : http://localhost:5000/api/auth/register
+    Método : POST
+
+    Exemplo : {"name": "Maria Tew", "email": "eliana.tes@example.com","password": "123456" "secret_code": "456"}
+
+    Logar usuários : http://localhost:5000/api/auth/login
+    Método : POST
+
+    Exemplo : {"email": "eliana.tes@example.com","password": "123456"}

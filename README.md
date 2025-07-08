@@ -24,3 +24,17 @@
     Método : POST
 
     Exemplo : {"email": "eliana.tes@example.com","password": "123456"}
+
+# Users
+
+    Lista usuários  : GET : http://localhost:5000/api/users
+    Lista usuário : GET : http://localhost:5000/api/user/id
+    Atualizar usuário : PUT : http://localhost:5000/api/user/id
+    {
+        "name": "Ana Silva",
+        "email": "ana.silva@example.com",
+        "password": "123456",
+        "secret_code": "123",
+        "role": "user"
+    }
+    Apagar usuário : DELETE : http://localhost:5000/api/user/id

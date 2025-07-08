@@ -15,4 +15,12 @@ app.use("/api", userRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api", debtRoutes);
 
+app.use((req, res, next) => {
+  res.status(404).json({
+    code: 404,
+    error: "End point not found.",
+    message: `The URL '${req.originalUrl}' doesn't exist. Check the address and try again.`,
+  });
+});
+
 module.exports = app;
